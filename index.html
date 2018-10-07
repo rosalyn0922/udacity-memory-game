@@ -21,12 +21,12 @@
             </p>
         </header>
         <div class="row">
-            <section class="col-sm-12 col-md-4">                
+            <section class="panel-container col-sm-12 col-md-4">                
                 <div class="row control-panel">
-                    <div class="col-sm-6 col-md-4 offset-md-4">                        
+                    <div class="moves-panel col-sm-6 col-md-2 offset-md-6">
                         <span class="moves">0</span> Moves &nbsp;
                     </div>
-                    <div class="col-sm-6 col-md-4 time-panel">
+                    <div class="time-content-panel col-sm-6 col-md-4 time-panel">
                         <div class="timeContent">
                             <span id="elapsedTimeInMinutes">00</span>:<span id="elapsedTimeInSeconds">00</span>
                         </div>
@@ -35,15 +35,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-12 col-md-6 offset-md-6">
+                <div class="row button-panel">
+                    <div class="buttons col-sm-12 col-md-6 offset-md-6">
                         <button type="button" class="start-game" onclick="newGame()">New Game</button>
-                        <label for="noTimeLimit"><input id="noTimeLimit" name="noTimeLimit" type="checkbox"> Time Limit</label>
+                        <label for="noTimeLimit"><input id="noTimeLimit" name="noTimeLimit" type="checkbox">No Time Limit</label>
                     </div>
                 </div>
             </section>
-            <section class="game-container col-sm-12 col-md-8">
+            <section class="game-container">
+                <section class="game-content col-sm-12 col-md-8">
 
+                </section>
             </section>
         </div>        
     </div>

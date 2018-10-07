@@ -13,9 +13,10 @@ var numberOfMoves = 0
 var matchedCards = []
 var openCard = null
 var movesTotal = document.querySelector('.moves')
-var container = document.querySelector('.game-container')
+var container = document.querySelector('.game-content')
 var bestScoreContent = document.querySelector('.best-score')
 var scoreTimeContent = document.querySelector('.score-time')
+var noTimeLimit = document.getElementById('noTimeLimit')
 var elapsedTimeInSecContent = document.getElementById('elapsedTimeInSeconds')
 var elapsedTimeInMinContent = document.getElementById('elapsedTimeInMinutes')
 var elapsedTimeInSeconds = 0
@@ -287,19 +288,18 @@ function initializeAndShuffleSymbols () {
 function startGame () {
   intervalFunction = setInterval(function () {
     elapsedTimeInSeconds++
-    elapsedTimeInMinutes = parseInt(elapsedTimeInSeconds / 60)
+    elapsedTimeInMinutes += parseInt(elapsedTimeInSeconds / 60)
     elapseTimeFormatSeconds = (elapsedTimeInSeconds % 60 > 9 ? '' : '0') + (elapsedTimeInSeconds % 60).toString()
     elapseTimeFormatMinutes = (parseInt(elapsedTimeInSeconds / 60) > 9 ? '' : '0') + (parseInt(elapsedTimeInSeconds / 60)).toString()
 
-    if (elapsedTimeInMinutes === timelimitInMinutes) {
-      elapsedTimeInSecContent.textContent = elapseTimeFormatSeconds
-      elapsedTimeInMinutes.textContent = elapseTimeFormatMinutes
+    elapsedTimeInSecContent.textContent = elapseTimeFormatSeconds
+    elapsedTimeInMinContent.textContent = elapseTimeFormatMinutes
 
-      clearInterval(intervalFunction)
-      alert('Time is up!!!!')
-    } else {
-      elapsedTimeInSecContent.textContent = elapseTimeFormatSeconds
-      elapsedTimeInMinutes.textContent = elapseTimeFormatMinutes
+    if (!noTimeLimit.checked) {
+      if (elapsedTimeInMinutes === timelimitInMinutes) {
+        clearInterval(intervalFunction)
+        alert('Time is up!!!!')
+      }
     }
   }, 1000)
 }
