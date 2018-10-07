@@ -13,7 +13,7 @@ var numberOfMoves = 0
 var matchedCards = []
 var openCard = null
 var movesTotal = document.querySelector('.moves')
-var container = document.querySelector('.container')
+var container = document.querySelector('.game-container')
 var bestScoreContent = document.querySelector('.best-score')
 var scoreTimeContent = document.querySelector('.score-time')
 var elapsedTimeInSecContent = document.getElementById('elapsedTimeInSeconds')
@@ -71,7 +71,10 @@ function generateStars (totalStars) {
 
   starsFragment.appendChild(liStars)
 
-  document.querySelector('.stars').appendChild(starsFragment)
+  // clear stars
+  var starContainer = document.querySelector('.stars')
+  starContainer.innerHTML = ''
+  starContainer.appendChild(starsFragment)
 }
 
 function toggleElement (element) {
@@ -166,6 +169,14 @@ var handleSymbolClick = function onSymbolClick (event) {
   }, 1000)
 }
 
+/**
+ * Create a symbol function
+ * @param {object} container Card Container
+ * @param {object} icon Main Font Icon Container, see FontAwesome for a list of symbols
+ * @param {string} symbol The actual symbol to append
+ * @param {int} key Main numeric integer
+ * @returns {object} symbol created
+ */
 function createSymbol (container, icon, symbol, key) {
   var symbolCard = container.cloneNode(true)
   var symbolIcon = icon.cloneNode(true)
@@ -177,6 +188,11 @@ function createSymbol (container, icon, symbol, key) {
   return symbolCard
 }
 
+/**
+ * Initialize Card Symbols. Create container and card element and attach to a document fragment
+ * @param {array} symbols Array of symbols
+ * @returns {object} Deck Container
+ */
 function initSymbolElements (symbols) {
   var deckContainer = document.createDocumentFragment('div')
   var cardDeck = document.createElement('ul')
@@ -204,7 +220,35 @@ function initSymbolElements (symbols) {
   return deckContainer.appendChild(cardDeck)
 }
 
+/**
+ * Get all opened cards and toggle it to close
+ */
+function resetCards () {
+  var openedCards = document.getElementsByClassName('card open show')
+
+  while (openedCards.length > 0) {
+    const card = openedCards[0]
+    toggleElement(card)
+    openedCards = document.getElementsByClassName('card open show')
+  }
+}
+
 function reset () {
+  matchedCards = []
+  openCard = null
+  numberOfMoves = 0
+  movesTotal.textContent = numberOfMoves
+  resetCards()
+  elapsedTimeInSeconds = 0
+  elapsedTimeInMinutes = 0
+  elapsedTimeInSecContent.textContent = '00'
+  elapsedTimeInMinContent.textContent = '00'
+}
+
+/**
+ * Starts a new game, remove deck and reinitialize and randomize symbols
+ */
+function newGame () {
   matchedCards = []
   openCard = null
   numberOfMoves = 0
@@ -216,6 +260,8 @@ function reset () {
   elapsedTimeInMinutes = 0
   elapsedTimeInSecContent.textContent = '00'
   elapsedTimeInMinContent.textContent = '00'
+
+  startGame()
 }
 
 function initializeAndShuffleSymbols () {
@@ -235,6 +281,9 @@ function initializeAndShuffleSymbols () {
   container.appendChild(deckFragment)
 }
 
+/**
+ * Start the game by initiating an interval based on timelimitInMinutes
+ */
 function startGame () {
   intervalFunction = setInterval(function () {
     elapsedTimeInSeconds++
@@ -243,9 +292,11 @@ function startGame () {
     elapseTimeFormatMinutes = (parseInt(elapsedTimeInSeconds / 60) > 9 ? '' : '0') + (parseInt(elapsedTimeInSeconds / 60)).toString()
 
     if (elapsedTimeInMinutes === timelimitInMinutes) {
-      alert('Time is up!!!!')
+      elapsedTimeInSecContent.textContent = elapseTimeFormatSeconds
+      elapsedTimeInMinutes.textContent = elapseTimeFormatMinutes
 
       clearInterval(intervalFunction)
+      alert('Time is up!!!!')
     } else {
       elapsedTimeInSecContent.textContent = elapseTimeFormatSeconds
       elapsedTimeInMinutes.textContent = elapseTimeFormatMinutes

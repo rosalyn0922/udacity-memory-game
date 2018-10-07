@@ -33,9 +33,18 @@ h1 {
     font-weight: 300;
 }
 
-header p.instructions {
-    font-size: 1em;
+header {
+    border-bottom: solid 1px #2e3d49;
+    margin: 10px 0;    
+}
+
+header h1 {
     text-align: center;
+}
+
+header p {
+    font-size: 1em;
+    text-align: center;        
 }
 
 /*
@@ -92,10 +101,13 @@ header p.instructions {
  * Styles for the Score Panel
  */
 
-.score-panel {
-    text-align: left;
-    width: 345px;
+.score-panel {    
     margin-bottom: 10px;
+}
+
+.score-panel p {
+    text-align: center;
+    display: block;
 }
 
 .score-panel .stars {
@@ -110,19 +122,34 @@ header p.instructions {
     display: inline-block;
 }
 
+.score-panel .best-score {
+    font-size: 1.1em;
+}
+
+.score-panel .score-time {
+    font-size: 1.1em;
+}
+
 /* control panel */
-.control-panel {
-    text-align: left;
-    width: 345px;
+.control-panel {    
     margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.control-panel .time-panel {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 .control-panel .restart {
-    float: right;
+    display:inline-block;
     cursor: pointer;
 }
 .control-panel .timeContent {
-    float: right;
+    display:inline-block;
     padding-right: 10px;    
 }
 
