@@ -33,6 +33,11 @@ h1 {
     font-weight: 300;
 }
 
+header p.instructions {
+    font-size: 1em;
+    text-align: center;
+}
+
 /*
  * Styles for the deck of cards
  */
@@ -63,7 +68,7 @@ h1 {
     justify-content: center;
     align-items: center;
     box-shadow: 5px 2px 20px 0 rgba(46, 61, 73, 0.5);
-    transition: transform 2s;
+    transition: transform 1s;
     transform-style: preserve-3d;        
 }
 
@@ -94,9 +99,9 @@ h1 {
 }
 
 .score-panel .stars {
+    float: right;
     margin: 0;
-    padding: 0;
-    display: inline-block;
+    padding: 0;    
     margin: 0 5px 0 0;
 }
 
@@ -105,7 +110,24 @@ h1 {
     display: inline-block;
 }
 
-.score-panel .restart {
+/* control panel */
+.control-panel {
+    text-align: left;
+    width: 345px;
+    margin-bottom: 10px;
+}
+
+.control-panel .restart {
     float: right;
     cursor: pointer;
+}
+.control-panel .timeContent {
+    float: right;
+    padding-right: 10px;    
+}
+
+/* Start Button */
+.start-game {
+    padding: 0 5px;
+    margin-right: 10px;
 }

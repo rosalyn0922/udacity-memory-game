@@ -14,6 +14,17 @@ var matchedCards = []
 var openCard = null
 var movesTotal = document.querySelector('.moves')
 var container = document.querySelector('.container')
+var bestScoreContent = document.querySelector('.best-score')
+var scoreTimeContent = document.querySelector('.score-time')
+var elapsedTimeInSecContent = document.getElementById('elapsedTimeInSeconds')
+var elapsedTimeInMinContent = document.getElementById('elapsedTimeInMinutes')
+var elapsedTimeInSeconds = 0
+var elapsedTimeInMinutes = 0
+var timelimitInMinutes = 1
+var intervalFunction = null
+var bestScore = 0
+var bestScoreTime = 0
+var ultimateScore = 12
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle (array) {
@@ -30,6 +41,37 @@ function shuffle (array) {
   }
 
   return array
+}
+
+function determineStarRating () {
+  // Formula: Ultimate Move / Best Move + Ultimate Move * 100 %
+  // Each star is equivalent to 20%
+
+  if (bestScore <= ultimateScore) {
+    return 5
+  } else {
+    var scorePercent = (ultimateScore / (bestScore + ultimateScore)) * 100
+    var starEquivalent = Math.round(scorePercent) / 20
+
+    return Math.abs(starEquivalent)
+  }
+}
+
+function generateStars (totalStars) {
+  var starsFragment = document.createDocumentFragment('div')
+  var liStars = document.createElement('li')
+  var iStars = document.createElement('i')
+  iStars.setAttribute('class', 'fa fa-star')
+
+  for (let index = 0; index < totalStars; index++) {
+    var star = iStars.cloneNode(true)
+
+    liStars.appendChild(star)
+  }
+
+  starsFragment.appendChild(liStars)
+
+  document.querySelector('.stars').appendChild(starsFragment)
 }
 
 function toggleElement (element) {
@@ -66,7 +108,6 @@ function isMatchingSymbol (targetElement, openCard) {
 
 function setMatchedCard (element, matchedCard) {
   matchedCards.push(element)
-  matchedCards.push(matchedCard)
   element.removeEventListener('click', handleSymbolClick)
   matchedCard.removeEventListener('click', handleSymbolClick)
   openCard = null
@@ -76,11 +117,39 @@ var handleSymbolClick = function onSymbolClick (event) {
   var element = event.target
   toggleElement(element)
 
+  event.preventDefault()
+  event.stopPropagation()
   setTimeout(function () {
     if (openCard !== null) {
       // check if it matches currently open card
       if (isMatchingSymbol(element, openCard)) {
         setMatchedCard(element, openCard)
+
+        // Check if the user is a winner
+        if (matchedCards.length === 8) {
+          elapseTimeFormatSeconds = (elapsedTimeInSeconds % 60 > 9 ? '' : '0') + (elapsedTimeInSeconds % 60).toString()
+          elapseTimeFormatMinutes = (parseInt(elapsedTimeInSeconds / 60) > 9 ? '' : '0') + (parseInt(elapsedTimeInSeconds / 60)).toString()
+          completionTime = elapseTimeFormatMinutes + ':' + elapseTimeFormatSeconds
+
+          bestScore = numberOfMoves
+          bestScoreTime = completionTime
+
+          // Add best score and time in page. Time to beat
+          bestScoreContent.textContent = bestScore
+          scoreTimeContent.textContent = bestScoreTime
+
+          var starRating = determineStarRating()
+          var message = ('Congratulations, You are a winner. You have completed the game in ' + completionTime + ' with a total moves of ' + numberOfMoves + '. You have earned ' + starRating + ' star(s). Way to go!!!')
+
+          generateStars(starRating)
+          alert(message)
+
+          // Now clear everything
+          reset()
+          clearInterval(intervalFunction)
+          // end the game prematurely
+          return message
+        }
       } else {
         // if they don't match, reset last two elements clicked open
         closeElement(element)
@@ -94,7 +163,7 @@ var handleSymbolClick = function onSymbolClick (event) {
       // if there is no open Card then assign to open card
       openCard = element
     }
-  }, 1500)
+  }, 1000)
 }
 
 function createSymbol (container, icon, symbol, key) {
@@ -143,6 +212,10 @@ function reset () {
   // reshuffles card
   container.querySelector('.deck').remove()
   initializeAndShuffleSymbols()
+  elapsedTimeInSeconds = 0
+  elapsedTimeInMinutes = 0
+  elapsedTimeInSecContent.textContent = '00'
+  elapsedTimeInMinContent.textContent = '00'
 }
 
 function initializeAndShuffleSymbols () {
@@ -162,16 +235,23 @@ function initializeAndShuffleSymbols () {
   container.appendChild(deckFragment)
 }
 
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
+function startGame () {
+  intervalFunction = setInterval(function () {
+    elapsedTimeInSeconds++
+    elapsedTimeInMinutes = parseInt(elapsedTimeInSeconds / 60)
+    elapseTimeFormatSeconds = (elapsedTimeInSeconds % 60 > 9 ? '' : '0') + (elapsedTimeInSeconds % 60).toString()
+    elapseTimeFormatMinutes = (parseInt(elapsedTimeInSeconds / 60) > 9 ? '' : '0') + (parseInt(elapsedTimeInSeconds / 60)).toString()
+
+    if (elapsedTimeInMinutes === timelimitInMinutes) {
+      alert('Time is up!!!!')
+
+      clearInterval(intervalFunction)
+    } else {
+      elapsedTimeInSecContent.textContent = elapseTimeFormatSeconds
+      elapsedTimeInMinutes.textContent = elapseTimeFormatMinutes
+    }
+  }, 1000)
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   initializeAndShuffleSymbols()

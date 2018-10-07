@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Matching Game</title>
+    <title>Matching Memory Game</title>
     <meta name="description" content="">
     <link rel="stylesheet prefetch" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
     <link rel="stylesheet prefetch" href="https://fonts.googleapis.com/css?family=Coda">
@@ -12,23 +12,27 @@
 
     <div class="container">
         <header>
-            <h1>Matching Game</h1>
+            <h1>Matching Memory Game by Rosalyn Guerrero</h1>
+            <p class="instructions">Match all cards in 1 minute to win the game! Best the ultimate score of 12 moves. Press Start button to start the game.</p>
         </header>
-
-        <section class="score-panel">
-        	<ul class="stars">
-        		<li><i class="fa fa-star"></i></li>
-        		<li><i class="fa fa-star"></i></li>
-        		<li><i class="fa fa-star"></i></li>
-        	</ul>
-
-        	<span class="moves">0</span> Moves
-
+        <div class="score-panel">
+            Score to beat <span class="best-score">0</span> moves in <span class="score-time">00:00</span>
+            <ul class="stars">
+                            
+            </ul>
+        </div>        
+        <section class="control-panel">                        
+            <button type="button" class="start-game" onclick="startGame()">Start</button>
+            
+        	<span class="moves">0</span> Moves &nbsp;
+                        
             <div class="restart">
-        		<i class="fa fa-repeat"></i>
-        	</div>
-        </section>
-       
+                <i class="fa fa-repeat"></i>
+            </div>
+            <div class="timeContent">
+                <span id="elapsedTimeInMinutes">00</span>:<span id="elapsedTimeInSeconds">00</span>
+            </div>
+        </section>           
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.2.20171210/classList.min.js"></script>    

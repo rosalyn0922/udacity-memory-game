@@ -50,6 +50,13 @@ We recommend saving most of the styling until the very end. Allow your game logi
 </li>
 </ol>
 
+## How to Play the game
+
+- Press the start link to start the game
+- Press the card to open it and try to match it against another card
+- You must match all cards within the given timelimit (3 minutes)
+- In the end, you score will display
+- Pressing the reset button will restart the game
 
 ## Instructions
 
