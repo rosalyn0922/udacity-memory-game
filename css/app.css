@@ -110,23 +110,25 @@ header p {
     display: block;
 }
 
-.score-panel .stars {
-    float: right;
+.stars {
+    position: relative;
+    top: 10px;
+    left: 50%;
     margin: 0;
     padding: 0;    
     margin: 0 5px 0 0;
 }
 
-.score-panel .stars li {
+.stars li {
     list-style: none;
     display: inline-block;
 }
 
-.score-panel .best-score {
+.best-score {
     font-size: 1.1em;
 }
 
-.score-panel .score-time {
+.score-time {
     font-size: 1.1em;
 }
 
