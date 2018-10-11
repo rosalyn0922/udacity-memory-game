@@ -14,12 +14,12 @@ const gameContainer = document.querySelector('.game-container')
 const container = document.querySelector('.game-content')
 const bestScoreContent = document.querySelector('.best-score')
 const scoreTimeContent = document.querySelector('.score-time')
-const noTimeLimit = document.getElementById('noTimeLimit')
-const newButtonGame = document.getElementById('newGame')
 const elapsedTimeInSecContent = document.getElementById('elapsedTimeInSeconds')
 const elapsedTimeInMinContent = document.getElementById('elapsedTimeInMinutes')
 const mainBestStar = document.getElementById('main-stars')
 const currentStarRating = document.getElementById('current-stars')
+const dialogWindow = document.getElementById('completeDialog')
+const completionDialogContent = document.getElementById('completion-dialog-content')
 const starRating = [
   { 1: { end: 200, start: 41 } },
   { 2: { end: 40, start: 31 } },
@@ -28,6 +28,7 @@ const starRating = [
   { 5: { end: 10, start: 5 } }
 ]
 
+let gameStarted = false
 let numberOfMoves = 0
 let matchedCards = []
 let openCard = null
@@ -159,57 +160,71 @@ function setMatchedCard (element, matchedCard) {
 
 var handleSymbolClick = function onSymbolClick (event) {
   var element = event.target
-  toggleElement(element)
 
-  event.preventDefault()
-  event.stopPropagation()
-  setTimeout(function () {
-    if (openCard !== null) {
-      // check if it matches currently open card
-      if (isMatchingSymbol(element, openCard)) {
-        setMatchedCard(element, openCard)
+  if (element.classList.value.indexOf('open') === -1) {
+    toggleElement(element)
 
-        // Check if the user is a winner
-        if (matchedCards.length === 8) {
-          // Clear interval first
-          clearInterval(intervalFunction)
-
-          elapseTimeFormatSeconds = (elapsedTimeInSeconds % 60 > 9 ? '' : '0') + (elapsedTimeInSeconds % 60).toString()
-          elapseTimeFormatMinutes = (parseInt(elapsedTimeInSeconds / 60) > 9 ? '' : '0') + (parseInt(elapsedTimeInSeconds / 60)).toString()
-          completionTime = elapseTimeFormatMinutes + ':' + elapseTimeFormatSeconds
-
-          bestScore = numberOfMoves
-          bestScoreTime = completionTime
-
-          // Add best score and time in page. Time to beat
-          bestScoreContent.textContent = bestScore
-          scoreTimeContent.textContent = bestScoreTime
-          gameContainer.classList.add('tada')
-
-          var starRating = determineStarRating()
-          var message = ('Congratulations, You are a winner. You have completed the game in ' + completionTime + ' with a total moves of ' + numberOfMoves + '. You have earned ' + starRating + ' star(s). Way to go!!!')
-
-          generateStars(starRating, mainBestStar)
-          newButtonGame.removeAttribute('disabled')
-          alert(message)
-          return message
-        }
-      } else {
-        // if they don't match, reset last two elements clicked open
-        closeElement(element)
-        closeElement(openCard)
-        openCard = null
-      }
-
-      numberOfMoves++
-      movesTotal.textContent = numberOfMoves
-
-      updateCurrentStar(numberOfMoves)
-    } else {
-      // if there is no open Card then assign to open card
-      openCard = element
+    if (gameStarted === false) {
+      gameStarted = true
+      startGame()
     }
-  }, 500)
+
+    event.preventDefault()
+    event.stopPropagation()
+    setTimeout(function () {
+      if (openCard !== null) {
+      // check if it matches currently open card
+        if (isMatchingSymbol(element, openCard)) {
+          setMatchedCard(element, openCard)
+
+          // Check if the user is a winner
+          if (matchedCards.length === 8) {
+          // Clear interval first
+            clearInterval(intervalFunction)
+
+            elapseTimeFormatSeconds = (elapsedTimeInSeconds % 60 > 9 ? '' : '0') + (elapsedTimeInSeconds % 60).toString()
+            elapseTimeFormatMinutes = (parseInt(elapsedTimeInSeconds / 60) > 9 ? '' : '0') + (parseInt(elapsedTimeInSeconds / 60)).toString()
+            completionTime = elapseTimeFormatMinutes + ':' + elapseTimeFormatSeconds
+
+            bestScore = numberOfMoves
+            bestScoreTime = completionTime
+
+            // Add best score and time in page. Time to beat
+            bestScoreContent.textContent = bestScore
+            scoreTimeContent.textContent = bestScoreTime
+            gameContainer.classList.add('tada')
+
+            var starRating = determineStarRating()
+            var message = ('<b>Congratulations!!</b>, You are a winner. You have completed the game in ' + completionTime + ' with a total moves of <b>' + numberOfMoves + '</b>. You have earned ' + starRating + ' star(s). Way to go!!!')
+            completionDialogContent.innerHTML = message
+
+            generateStars(starRating, mainBestStar)
+            // alert(message)
+            $(dialogWindow).modal({ show: true })
+            return message
+          }
+        } else {
+        // if they don't match, reset last two elements clicked open
+          closeElement(element)
+          closeElement(openCard)
+          openCard = null
+        }
+
+        numberOfMoves++
+        movesTotal.textContent = numberOfMoves
+
+        updateCurrentStar(numberOfMoves)
+      } else {
+      // if there is no open Card then assign to open card
+        openCard = element
+      }
+    }, 500)
+  }
+}
+
+function handleDoubleClick (e) {
+  e.preventDefault()
+  e.stopPropagation()
 }
 
 /**
@@ -227,6 +242,7 @@ function createSymbol (container, icon, symbol, key) {
   symbolCard.setAttribute('id', Math.random() * (key + 1))
   symbolCard.appendChild(symbolIcon)
   symbolCard.addEventListener('click', handleSymbolClick)
+  symbolCard.addEventListener('doubleclick', handleDoubleClick)
 
   return symbolCard
 }
@@ -267,26 +283,45 @@ function initSymbolElements (symbols) {
  * Get all opened cards and toggle it to close
  */
 function resetCards () {
-  var openedCards = document.getElementsByClassName('card open show')
+  try {
+    var openedCards = document.getElementsByClassName('card open show')
 
-  while (openedCards.length > 0) {
-    const card = openedCards[0]
-    toggleElement(card)
-    openedCards = document.getElementsByClassName('card open show')
+    while (openedCards.length > 0) {
+      const card = openedCards[0]
+      closeElement(card)
+      openedCards = document.getElementsByClassName('card open show')
+    }
+  } catch (error) {
+    alert(error)
   }
 }
 
 function reset () {
-  matchedCards = []
-  openCard = null
-  numberOfMoves = 0
-  movesTotal.textContent = numberOfMoves
-  generateStars(5, currentStarRating)
-  resetCards()
-  elapsedTimeInSeconds = 0
-  elapsedTimeInMinutes = 0
-  elapsedTimeInSecContent.textContent = '00'
-  elapsedTimeInMinContent.textContent = '00'
+  try {
+    matchedCards = []
+    openCard = null
+    numberOfMoves = 0
+    movesTotal.textContent = numberOfMoves
+    generateStars(5, currentStarRating)
+    resetCards()
+    elapsedTimeInSeconds = 0
+    elapsedTimeInMinutes = 0
+    elapsedTimeInSecContent.textContent = '00'
+    elapsedTimeInMinContent.textContent = '00'
+
+    if (intervalFunction) { clearInterval(intervalFunction) }
+  } catch (error) {
+    alert(error)
+  }
+}
+
+function newGameAndCloseDialog () {
+  closeDialog()
+  newGame()
+}
+
+function closeDialog () {
+  $(dialogWindow).modal('hide')
 }
 
 /**
@@ -294,13 +329,12 @@ function reset () {
  */
 function newGame () {
   reset()
+
   // reshuffles card
   container.querySelector('.deck').remove()
   initializeAndShuffleSymbols()
 
   startGame()
-
-  newButtonGame.setAttribute('disabled', 'disabled')
 }
 
 function initializeAndShuffleSymbols () {
@@ -332,14 +366,6 @@ function startGame () {
 
     elapsedTimeInSecContent.textContent = elapseTimeFormatSeconds
     elapsedTimeInMinContent.textContent = elapseTimeFormatMinutes
-
-    if (!noTimeLimit.checked) {
-      if (elapsedTimeInMinutes === timelimitInMinutes) {
-        clearInterval(intervalFunction)
-        alert('Time is up!!!!')
-        newButtonGame.removeAttribute('disabled')
-      }
-    }
   }, 1000)
 }
 
