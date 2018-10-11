@@ -9,23 +9,36 @@
  *   - add each card's HTML to the page
  */
 
-var numberOfMoves = 0
-var matchedCards = []
-var openCard = null
-var movesTotal = document.querySelector('.moves')
-var container = document.querySelector('.game-content')
-var bestScoreContent = document.querySelector('.best-score')
-var scoreTimeContent = document.querySelector('.score-time')
-var noTimeLimit = document.getElementById('noTimeLimit')
-var elapsedTimeInSecContent = document.getElementById('elapsedTimeInSeconds')
-var elapsedTimeInMinContent = document.getElementById('elapsedTimeInMinutes')
-var elapsedTimeInSeconds = 0
-var elapsedTimeInMinutes = 0
-var timelimitInMinutes = 1
-var intervalFunction = null
-var bestScore = 0
-var bestScoreTime = 0
-var ultimateScore = 12
+const movesTotal = document.querySelector('.moves')
+const gameContainer = document.querySelector('.game-container')
+const container = document.querySelector('.game-content')
+const bestScoreContent = document.querySelector('.best-score')
+const scoreTimeContent = document.querySelector('.score-time')
+const noTimeLimit = document.getElementById('noTimeLimit')
+const newButtonGame = document.getElementById('newGame')
+const elapsedTimeInSecContent = document.getElementById('elapsedTimeInSeconds')
+const elapsedTimeInMinContent = document.getElementById('elapsedTimeInMinutes')
+const mainBestStar = document.getElementById('main-stars')
+const currentStarRating = document.getElementById('current-stars')
+const starRating = [
+  { 1: { end: 200, start: 41 } },
+  { 2: { end: 40, start: 31 } },
+  { 3: { end: 30, start: 21 } },
+  { 4: { end: 20, start: 11 } },
+  { 5: { end: 10, start: 5 } }
+]
+
+let numberOfMoves = 0
+let matchedCards = []
+let openCard = null
+let elapsedTimeInSeconds = 0
+let elapsedTimeInMinutes = 0
+let timelimitInMinutes = 1
+let intervalFunction = null
+let bestScore = 0
+let bestScoreTime = 0
+let ultimateScore = 12
+let currentStarScore = 5
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle (array) {
@@ -44,21 +57,28 @@ function shuffle (array) {
   return array
 }
 
-function determineStarRating () {
-  // Formula: Ultimate Move / Best Move + Ultimate Move * 100 %
-  // Each star is equivalent to 20%
-
-  if (bestScore <= ultimateScore) {
+function determineStarRating (currentScore) {
+  if (currentScore) {
+    if (currentScore >= 5) {
+      for (const score of starRating) {
+        const key = Object.keys(score)[0]
+        if (currentScore >= score[key].start && currentScore <= score[key].end) {
+          return key
+        }
+      }
+    }
     return 5
   } else {
-    var scorePercent = (ultimateScore / (bestScore + ultimateScore)) * 100
-    var starEquivalent = Math.round(scorePercent) / 20
-
-    return Math.abs(starEquivalent)
+    for (const score of starRating) {
+      const key = Object.keys(score)[0]
+      if (bestScore >= score[key].start && bestScore <= score[key].end) {
+        return key
+      }
+    }
   }
 }
 
-function generateStars (totalStars) {
+function generateStars (totalStars, container) {
   var starsFragment = document.createDocumentFragment('div')
   var liStars = document.createElement('li')
   var iStars = document.createElement('i')
@@ -72,21 +92,19 @@ function generateStars (totalStars) {
 
   starsFragment.appendChild(liStars)
 
-  // clear stars
-  var starContainer = document.querySelector('.stars')
-  starContainer.innerHTML = ''
-  starContainer.appendChild(starsFragment)
+  container.innerHTML = ''
+  container.appendChild(starsFragment)
 }
 
 function toggleElement (element) {
   var parentElement = element.parentElement
 
   if (element.nodeName === 'LI') {
-    element.classList.toggle('open')
-    element.classList.toggle('show')
+    element.classList.add('open')
+    element.classList.add('show')
   } else {
-    parentElement.classList.toggle('open')
-    parentElement.classList.toggle('show')
+    parentElement.classList.add('open')
+    parentElement.classList.add('show')
   }
 }
 
@@ -102,11 +120,33 @@ function closeElement (element) {
   }
 }
 
+function updateCurrentStar (score) {
+  const generatedScore = determineStarRating(score)
+  if (generatedScore !== currentStarScore) {
+    currentStarRating.classList.add('swing')
+  }
+  currentStarScore = generatedScore
+  setTimeout(function () {
+    generateStars(generatedScore, currentStarRating)
+  }, 1000)
+
+  setTimeout(function () {
+    currentStarRating.classList.remove('swing')
+  }, 2000)
+}
+
 function isMatchingSymbol (targetElement, openCard) {
+  var target = targetElement.childNodes[0]
+  var open = openCard.childNodes[0]
   var elementToMatch = targetElement.childNodes[0].classList.value
   var childList = openCard.childNodes[0].classList.value
 
   // To keep this simple, assuming only one single list for each list item
+  if (elementToMatch === childList) {
+    target.parentElement.classList.add('animated', 'rubberBand')
+    open.parentElement.classList.add('animated', 'rubberBand')
+  }
+
   return elementToMatch === childList
 }
 
@@ -131,6 +171,9 @@ var handleSymbolClick = function onSymbolClick (event) {
 
         // Check if the user is a winner
         if (matchedCards.length === 8) {
+          // Clear interval first
+          clearInterval(intervalFunction)
+
           elapseTimeFormatSeconds = (elapsedTimeInSeconds % 60 > 9 ? '' : '0') + (elapsedTimeInSeconds % 60).toString()
           elapseTimeFormatMinutes = (parseInt(elapsedTimeInSeconds / 60) > 9 ? '' : '0') + (parseInt(elapsedTimeInSeconds / 60)).toString()
           completionTime = elapseTimeFormatMinutes + ':' + elapseTimeFormatSeconds
@@ -141,17 +184,14 @@ var handleSymbolClick = function onSymbolClick (event) {
           // Add best score and time in page. Time to beat
           bestScoreContent.textContent = bestScore
           scoreTimeContent.textContent = bestScoreTime
+          gameContainer.classList.add('tada')
 
           var starRating = determineStarRating()
           var message = ('Congratulations, You are a winner. You have completed the game in ' + completionTime + ' with a total moves of ' + numberOfMoves + '. You have earned ' + starRating + ' star(s). Way to go!!!')
 
-          generateStars(starRating)
+          generateStars(starRating, mainBestStar)
+          newButtonGame.removeAttribute('disabled')
           alert(message)
-
-          // Now clear everything
-          reset()
-          clearInterval(intervalFunction)
-          // end the game prematurely
           return message
         }
       } else {
@@ -163,11 +203,13 @@ var handleSymbolClick = function onSymbolClick (event) {
 
       numberOfMoves++
       movesTotal.textContent = numberOfMoves
+
+      updateCurrentStar(numberOfMoves)
     } else {
       // if there is no open Card then assign to open card
       openCard = element
     }
-  }, 1000)
+  }, 500)
 }
 
 /**
@@ -239,6 +281,7 @@ function reset () {
   openCard = null
   numberOfMoves = 0
   movesTotal.textContent = numberOfMoves
+  generateStars(5, currentStarRating)
   resetCards()
   elapsedTimeInSeconds = 0
   elapsedTimeInMinutes = 0
@@ -250,19 +293,14 @@ function reset () {
  * Starts a new game, remove deck and reinitialize and randomize symbols
  */
 function newGame () {
-  matchedCards = []
-  openCard = null
-  numberOfMoves = 0
-  movesTotal.textContent = numberOfMoves
+  reset()
   // reshuffles card
   container.querySelector('.deck').remove()
   initializeAndShuffleSymbols()
-  elapsedTimeInSeconds = 0
-  elapsedTimeInMinutes = 0
-  elapsedTimeInSecContent.textContent = '00'
-  elapsedTimeInMinContent.textContent = '00'
 
   startGame()
+
+  newButtonGame.setAttribute('disabled', 'disabled')
 }
 
 function initializeAndShuffleSymbols () {
@@ -299,6 +337,7 @@ function startGame () {
       if (elapsedTimeInMinutes === timelimitInMinutes) {
         clearInterval(intervalFunction)
         alert('Time is up!!!!')
+        newButtonGame.removeAttribute('disabled')
       }
     }
   }, 1000)
@@ -306,6 +345,7 @@ function startGame () {
 
 document.addEventListener('DOMContentLoaded', function () {
   initializeAndShuffleSymbols()
+  generateStars(5, currentStarRating)
 
   var restart = document.querySelector('.restart')
   restart.addEventListener('click', reset)
