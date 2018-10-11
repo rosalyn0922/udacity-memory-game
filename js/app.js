@@ -20,6 +20,7 @@ const mainBestStar = document.getElementById('main-stars')
 const currentStarRating = document.getElementById('current-stars')
 const dialogWindow = document.getElementById('completeDialog')
 const completionDialogContent = document.getElementById('completion-dialog-content')
+const restart = document.querySelector('.restart')
 const starRating = [
   { 1: { end: 200, start: 41 } },
   { 2: { end: 40, start: 31 } },
@@ -43,9 +44,9 @@ let currentStarScore = 5
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle (array) {
-  var currentIndex = array.length
-  var temporaryValue
-  var randomIndex
+  let currentIndex = array.length
+  let temporaryValue
+  let randomIndex
 
   while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex)
@@ -58,6 +59,11 @@ function shuffle (array) {
   return array
 }
 
+/**
+ * Check if the current score matches the array list of star Rating recommendations. This will return a numeric value that is the number of stars
+ * @param {int} currentScore Numeric Score to determine
+ * @returns {int} numericValue
+ */
 function determineStarRating (currentScore) {
   if (currentScore) {
     if (currentScore >= 5) {
@@ -79,14 +85,19 @@ function determineStarRating (currentScore) {
   }
 }
 
+/**
+ * A reusable function use to generate the stars on the target container
+ * @param {int} totalStars number of stars to display
+ * @param {object} container actual container
+ */
 function generateStars (totalStars, container) {
-  var starsFragment = document.createDocumentFragment('div')
-  var liStars = document.createElement('li')
-  var iStars = document.createElement('i')
+  const starsFragment = document.createDocumentFragment('div')
+  const liStars = document.createElement('li')
+  const iStars = document.createElement('i')
   iStars.setAttribute('class', 'fa fa-star')
 
   for (let index = 0; index < totalStars; index++) {
-    var star = iStars.cloneNode(true)
+    const star = iStars.cloneNode(true)
 
     liStars.appendChild(star)
   }
@@ -98,7 +109,7 @@ function generateStars (totalStars, container) {
 }
 
 function toggleElement (element) {
-  var parentElement = element.parentElement
+  const parentElement = element.parentElement
 
   if (element.nodeName === 'LI') {
     element.classList.add('open')
@@ -110,7 +121,7 @@ function toggleElement (element) {
 }
 
 function closeElement (element) {
-  var parentElement = element.parentElement
+  const parentElement = element.parentElement
 
   if (element.nodeName === 'LI') {
     element.classList.remove('open')
@@ -121,6 +132,10 @@ function closeElement (element) {
   }
 }
 
+/**
+ * Adds an animation on the stars generated
+ * @param {int} score Numeric equivalent score that will be determined later by determining the star rating
+ */
 function updateCurrentStar (score) {
   const generatedScore = determineStarRating(score)
   if (generatedScore !== currentStarScore) {
@@ -136,11 +151,17 @@ function updateCurrentStar (score) {
   }, 2000)
 }
 
+/**
+ * Checks if the target Card matches the Currently opened card
+ * @param {object} targetElement Element to Match
+ * @param {object} openCard Current Open Card
+ * @returns {boolean} IsCardMatched
+ */
 function isMatchingSymbol (targetElement, openCard) {
-  var target = targetElement.childNodes[0]
-  var open = openCard.childNodes[0]
-  var elementToMatch = targetElement.childNodes[0].classList.value
-  var childList = openCard.childNodes[0].classList.value
+  const target = targetElement.childNodes[0]
+  const open = openCard.childNodes[0]
+  const elementToMatch = targetElement.childNodes[0].classList.value
+  const childList = openCard.childNodes[0].classList.value
 
   // To keep this simple, assuming only one single list for each list item
   if (elementToMatch === childList) {
@@ -158,8 +179,12 @@ function setMatchedCard (element, matchedCard) {
   openCard = null
 }
 
-var handleSymbolClick = function onSymbolClick (event) {
-  var element = event.target
+/**
+ * Main matching logic on every click
+ * @param {object} event Event Handler for the actual card clicked
+ */
+let handleSymbolClick = function onSymbolClick (event) {
+  const element = event.target
 
   if (element.classList.value.indexOf('open') === -1) {
     toggleElement(element)
@@ -194,8 +219,8 @@ var handleSymbolClick = function onSymbolClick (event) {
             scoreTimeContent.textContent = bestScoreTime
             gameContainer.classList.add('tada')
 
-            var starRating = determineStarRating()
-            var message = ('<b>Congratulations!!</b>, You are a winner. You have completed the game in ' + completionTime + ' with a total moves of <b>' + numberOfMoves + '</b>. You have earned ' + starRating + ' star(s). Way to go!!!')
+            const starRating = determineStarRating()
+            const message = ('<b>Congratulations!!</b>, You are a winner. You have completed the game in ' + completionTime + ' with a total moves of <b>' + numberOfMoves + '</b>. You have earned ' + starRating + ' star(s). Way to go!!!')
             completionDialogContent.innerHTML = message
 
             generateStars(starRating, mainBestStar)
@@ -236,8 +261,8 @@ function handleDoubleClick (e) {
  * @returns {object} symbol created
  */
 function createSymbol (container, icon, symbol, key) {
-  var symbolCard = container.cloneNode(true)
-  var symbolIcon = icon.cloneNode(true)
+  const symbolCard = container.cloneNode(true)
+  const symbolIcon = icon.cloneNode(true)
   symbolIcon.setAttribute('class', 'fa ' + symbol)
   symbolCard.setAttribute('id', Math.random() * (key + 1))
   symbolCard.appendChild(symbolIcon)
@@ -253,11 +278,11 @@ function createSymbol (container, icon, symbol, key) {
  * @returns {object} Deck Container
  */
 function initSymbolElements (symbols) {
-  var deckContainer = document.createDocumentFragment('div')
-  var cardDeck = document.createElement('ul')
-  var cardContainer = document.createElement('li')
-  var iconImage = document.createElement('i')
-  var listSymbols = []
+  const deckContainer = document.createDocumentFragment('div')
+  const cardDeck = document.createElement('ul')
+  const cardContainer = document.createElement('li')
+  const iconImage = document.createElement('i')
+  const listSymbols = []
 
   cardDeck.setAttribute('class', 'deck')
   cardContainer.setAttribute('class', 'card')
@@ -284,7 +309,7 @@ function initSymbolElements (symbols) {
  */
 function resetCards () {
   try {
-    var openedCards = document.getElementsByClassName('card open show')
+    let openedCards = document.getElementsByClassName('card open show')
 
     while (openedCards.length > 0) {
       const card = openedCards[0]
@@ -338,7 +363,7 @@ function newGame () {
 }
 
 function initializeAndShuffleSymbols () {
-  var allSymbols = [
+  const allSymbols = [
     'fa-diamond',
     'fa-paper-plane-o',
     'fa-anchor',
@@ -373,6 +398,5 @@ document.addEventListener('DOMContentLoaded', function () {
   initializeAndShuffleSymbols()
   generateStars(5, currentStarRating)
 
-  var restart = document.querySelector('.restart')
-  restart.addEventListener('click', reset)
+  restart.addEventListener('click', newGame)
 })
